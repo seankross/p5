@@ -1,0 +1,6 @@
+dependencies:
+  - name: p5
+    version: 0.5.11
+    src: htmlwidgets/lib/p5
+    script:
+      - p5.min.js

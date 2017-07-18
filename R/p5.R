@@ -5,23 +5,31 @@
 #' @import htmlwidgets
 #'
 #' @export
-p5 <- function(data = NULL, padding = 0) {
+p5 <- function(data = NULL, width = NULL, height = NULL, padding = 0) {
+
+  id <- paste(c("p5-", sample(0:9, 10, replace = TRUE)), collapse = "")
+  fn <- paste(sample(letters, 10, replace = TRUE), collapse = "")
 
   # forward options using x
   x = list(
     type = "sketch",
-    setup = JS("function setup() {", "}"),
-    draw = JS("function draw() {", "}"),
-    data = data
+    pre = JS_(";"),
+    setup = JS_("p.setup = function() {", "};"),
+    between = JS_(";"),
+    draw = JS_("p.draw = function() {", "};"),
+    post = JS_(";"),
+    data = data,
+    fn = fn
   )
 
   # create widget
   htmlwidgets::createWidget(
     name = "p5",
     x,
-    width = 0,
-    height = 0,
-    sizingPolicy = sizingPolicy(padding = padding)
+    width = width,
+    height = height,
+    sizingPolicy = sizingPolicy(padding = padding),
+    elementId = id
   )
 }
 
@@ -68,7 +76,7 @@ js_append <- function(js, to_append){
   tokens <- unlist(strsplit(js, "\n"))
   end <- tokens[length(tokens)]
   tokens[length(tokens)] <- to_append
-  JS(c(tokens, end))
+  JS_(c(tokens, end))
 }
 
 #' @export
@@ -82,22 +90,13 @@ fill <- function(sketch, r, g, b, a = NULL){
 }
 
 #' @export
-background <- function(sketch, r, g, b, a = NULL){
-  sketch$x$setup <- sketch$x$setup %>%
-   js_append(sprintf("background(%d,%d,%d,%d);", r, g, b, ifelse(is.null(a), 100, a)))
-  sketch
-}
-
-#' @export
-createCanvas <- function(sketch, w, h){
-  sketch$x$setup <- sketch$x$setup %>%
-    js_append(sprintf("createCanvas(%d,%d);", w, h))
-  sketch
-}
-
-#' @export
 p5_js <- function(...){
 
+}
+
+JS_ <- function(...){
+  x <- c(...)
+  paste(x, collapse = "\n")
 }
 
 #' Pipe operator

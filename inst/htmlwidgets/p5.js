@@ -14,8 +14,14 @@ HTMLWidgets.widget({
 
         var sketch = document.createElement('script');
         sketch.type = 'text/javascript';
+        sketch.appendChild(document.createTextNode('var ' + x.fn + ' = function( p ) {'));
+        sketch.appendChild(document.createTextNode(x.pre));
         sketch.appendChild(document.createTextNode(x.setup));
+        sketch.appendChild(document.createTextNode(x.between));
         sketch.appendChild(document.createTextNode(x.draw));
+        sketch.appendChild(document.createTextNode(x.post));
+        sketch.appendChild(document.createTextNode("};"));
+        sketch.appendChild(document.createTextNode("new p5(" + x.fn + ",'" + el.id + "');"));
         document.head.appendChild(sketch);
 
       },

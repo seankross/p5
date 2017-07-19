@@ -4,7 +4,7 @@
 \alias{p5}
 \title{<Add Title>}
 \usage{
-p5(data = NULL, padding = 0)
+p5(data = NULL, width = NULL, height = NULL, padding = 0)
 }
 \description{
 <Add Description>

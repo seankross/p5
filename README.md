@@ -12,8 +12,18 @@ devtools::install_github("seankross/p5")
 
 ```r
 library(p5)
+library(tibble)
 
-p5() %>%
-  createCanvas(400, 200) %>%
-  background(200, 50, 50)
+squares <- data_frame(x = c(100, 100, 200, 200),
+                      y = c(50, 150, 50, 150),
+                      w = rep(40, 4),
+                      h = rep(40, 4))
+
+squares %>%
+  p5() %>%
+  createCanvas(300, 200) %>%
+  background("#002d72") %>%
+  rect()
 ```
+
+

@@ -6,13 +6,16 @@
 #'
 #' @export
 p5 <- function(data = NULL, width = NULL, height = NULL, padding = 0) {
+  if(!is.null(data) && !is.data.frame(data)){
+    stop("The data argument must be a data frame.")
+  }
 
   id <- paste(c("p5-", sample(0:9, 10, replace = TRUE)), collapse = "")
   fn <- paste(sample(letters, 10, replace = TRUE), collapse = "")
 
   # forward options using x
   x = list(
-    type = "sketch",
+    section = "sketch",
     pre = JS_(";"),
     setup = JS_("p.setup = function() {", "};"),
     between = JS_(";"),
@@ -80,16 +83,6 @@ js_append <- function(js, to_append){
 }
 
 #' @export
-ellipse <- function(sketch, x, y, w, h = NULL){
-
-}
-
-#' @export
-fill <- function(sketch, r, g, b, a = NULL){
-
-}
-
-#' @export
 p5_js <- function(...){
 
 }
@@ -108,3 +101,64 @@ JS_ <- function(...){
 #' @importFrom magrittr %>%
 #' @usage lhs \%>\% rhs
 NULL
+
+unform <- function(form){
+  if(length(form) != 2){
+    stop("Formula argument should be one sided.")
+  }
+  as.character(form)[2]
+}
+
+#' @importFrom htmltools validateCssUnit
+validCssUnit <- function(x){
+  result <- tryCatch(validateCssUnit(x),
+           error = function(e) TRUE)
+  !isTRUE(result)
+}
+
+get_section <- function(sketch, verb){
+  if(sketch$x$section != "sketch"){
+    return(sketch$x$section)
+  }
+
+  if(verb %in% c("createCanvas")){
+    "setup"
+  } else {
+    "draw"
+  }
+}
+
+#' @importFrom purrr map pmap
+#' @importFrom rlang is_formula
+prepare_args <- function(sketch, ...){
+  args_ <- list(...) %>%
+    map2(names(list(...)), function(x_, n_){
+      if(is.null(x_) && (n_ %in% colnames(sketch$x$data))){
+        n_
+      } else if(is_formula(x_)){
+        unform(x_)
+      } else {
+        as.character(x_)
+      }
+    }) %>%
+    map(function(x_){
+      x_is_a_colname <- !is.null(sketch$x$data) && (x_ %in% colnames(sketch$x$data))
+      if(x_is_a_colname){
+        sketch$x$data[[x_]]
+      } else {
+        x_
+      }
+    })
+
+  args_ %>%
+    map(function(x_){
+      if(length(x_) != max(lengths(args_))){
+        rep_len(x_, max(lengths(args_)))
+      } else {
+        x_
+      }
+    }) %>%
+    pmap(function(...){
+      list(...)
+    })
+}

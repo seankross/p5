@@ -36,55 +36,11 @@ p5 <- function(data = NULL, width = NULL, height = NULL, padding = 0) {
   )
 }
 
-#' @export
-setup <- function(data){
-
-}
-
-#' @export
-draw <- function(data){
-
-}
-
-
-#' Shiny bindings for p5
-#'
-#' Output and render functions for using p5 within Shiny
-#' applications and interactive Rmd documents.
-#'
-#' @param outputId output variable to read from
-#' @param width,height Must be a valid CSS unit (like \code{'100\%'},
-#'   \code{'400px'}, \code{'auto'}) or a number, which will be coerced to a
-#'   string and have \code{'px'} appended.
-#' @param expr An expression that generates a p5
-#' @param env The environment in which to evaluate \code{expr}.
-#' @param quoted Is \code{expr} a quoted expression (with \code{quote()})? This
-#'   is useful if you want to save an expression in a variable.
-#'
-#' @name p5-shiny
-#'
-#' @export
-p5Output <- function(outputId, width = '100%', height = '400px'){
-  htmlwidgets::shinyWidgetOutput(outputId, 'p5', width, height, package = 'p5')
-}
-
-#' @rdname p5-shiny
-#' @export
-renderP5 <- function(expr, env = parent.frame(), quoted = FALSE) {
-  if (!quoted) { expr <- substitute(expr) } # force quoted
-  htmlwidgets::shinyRenderWidget(expr, p5Output, env, quoted = TRUE)
-}
-
 js_append <- function(js, to_append){
   tokens <- unlist(strsplit(js, "\n"))
   end <- tokens[length(tokens)]
   tokens[length(tokens)] <- to_append
   JS_(c(tokens, end))
-}
-
-#' @export
-p5_js <- function(...){
-
 }
 
 JS_ <- function(...){
@@ -102,11 +58,59 @@ JS_ <- function(...){
 #' @usage lhs \%>\% rhs
 NULL
 
-unform <- function(form){
+parse_rhs <- function(rhs, acc = NULL){
+  if(is.name(rhs)){
+    return(c(paste0("p.", as.character(rhs)), acc))
+  } else if(is.call(rhs)){
+    sym <- as.character(rhs[[1]])
+    rhs_ <- rhs[[2]]
+    nm <- paste0("p.", as.character(rhs[[3]]))
+    parse_rhs(rhs_, c(sym, nm, acc))
+  }
+}
+
+parse_formula <- function(form){
+  rhs <- form[[2]]
+  parse_rhs(rhs)
+}
+
+is_constant <- function(y, sketch = NULL){
+  constants <- c("HALF_PI", "PI", "QUARTER_PI", "TAU", "TWO_PI", "frameCount",
+           "focused", "displayWidth", "displayHeight", "windowWidth",
+           "windowHeight", "width", "height",  "deviceOrientation",
+           "accelerationX", "accelerationY", "accelerationZ", "pAccelerationX",
+           "pAccelerationY", "pAccelerationZ", "rotationX", "rotationY",
+           "rotationZ", "pRotationX", "pRotationY", "pRotationZ",
+           "keyIsPressed", "key", "keyCode", "mouseX", "mouseY", "pmouseX",
+           "pmouseY", "winMouseX", "winMouseY", "pwinMouseX", "pwinMouseY",
+           "mouseButton", "mouseIsPressed", "touches", "pixels", "OPEN",
+           "CHORD", "PIE")
+  if(!is.null(sketch$x$data)){
+    !(y %in% colnames(sketch$x$data)) && (y %in% constants)
+  } else {
+    y %in% constants
+  }
+}
+
+#' @importFrom stringr str_extract_all
+#' @importFrom purrr map_chr
+unform <- function(form, sketch = NULL){
   if(length(form) != 2){
     stop("Formula argument should be one sided.")
   }
-  as.character(form)[2]
+
+  formula_string <- as.character(form)[2]
+  words_ <- formula_string %>% str_extract_all("\\w+", simplify = TRUE) %>% as.character()
+  symbols_ <- formula_string %>% str_extract_all("[^\\w\\s]+", simplify = TRUE) %>% as.character()
+
+  # Check is any of words_ are constants and if they are add a "p."
+  words_ <- words_ %>% map_chr(~ ifelse(is_constant(.x, sketch), paste0("p.", .x), .x))
+
+  if(length(words_) == 1){
+    words_
+  } else {
+    paste(paste0(words_, c(symbols_, "")), collapse = "")
+  }
 }
 
 #' @importFrom htmltools validateCssUnit
@@ -121,14 +125,16 @@ get_section <- function(sketch, verb){
     return(sketch$x$section)
   }
 
-  if(verb %in% c("createCanvas")){
+  if(verb %in% c("createCanvas", "background", "noLoop")){
     "setup"
+  } if(verb %in% c("js")){
+    "post"
   } else {
     "draw"
   }
 }
 
-#' @importFrom purrr map pmap
+#' @importFrom purrr map pmap map2
 #' @importFrom rlang is_formula
 prepare_args <- function(sketch, ...){
   args_ <- list(...) %>%
@@ -136,7 +142,9 @@ prepare_args <- function(sketch, ...){
       if(is.null(x_) && (n_ %in% colnames(sketch$x$data))){
         n_
       } else if(is_formula(x_)){
-        unform(x_)
+        unform(x_, sketch)
+      } else if(is.null(x_)){
+        "null"
       } else {
         as.character(x_)
       }

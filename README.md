@@ -24,6 +24,32 @@ squares %>%
   createCanvas(300, 200) %>%
   background("#002d72") %>%
   rect()
+  
+p5() %>%
+  createCanvas(100, 100) %>%
+  background("#808080") %>%
+  arc(50, 55, 50, 50, 0, ~HALF_PI) %>%
+  noFill() %>%
+  arc(50, 55, 60, 60, ~HALF_PI, ~PI) %>%
+  arc(50, 55, 70, 70, ~PI, ~PI+QUARTER_PI) %>%
+  arc(50, 55, 80, 80, ~PI+QUARTER_PI, ~TWO_PI)
+  
+squares %>%
+  draw() %>%
+  fill("#808080") %>%
+  rect() %>%
+  sketch(draw = ., 
+    setup = setup() %>% createCanvas(300, 200))
+  
+draw() %>%
+  background("#F4F8FC") %>%
+  line(~mouseX, 0, ~mouseX, 200) %>%
+  sketch(draw = .)
+
+p5() %>%
+  createCanvas(400, 300) %>%
+  background("#F4F8FC") %>%
+  ellipse(~mouseX, ~mouseY, 30, 30)
 ```
 
 

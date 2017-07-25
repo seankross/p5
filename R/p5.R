@@ -1,9 +1,42 @@
-#' <Add Title>
+#' Create a p5 sketch
 #'
-#' <Add Description>
+#' Create a blank [p5](https://p5js.org/) sketch.
 #'
-#' @import htmlwidgets
+#' @param data A [tibble::data_frame()] which can be used to draw objects on the
+#' canvas where each row is an object to be drawn and columns are attributes of
+#' the object to be drawn.
+#' @param width Width of the sketch.
+#' @param height Height of the sketch.
+#' @param padding Padding of the sketch.
 #'
+#' @importFrom htmlwidgets createWidget sizingPolicy
+#' @examples
+#' \dontrun{
+#'
+#' p5() %>%
+#'   rect(10, 10, 40, 50)
+#'
+#' p5() %>%
+#'   createCanvas(400, 300) %>%
+#'   background("#F0F8FF")
+#'
+#' library(dplyr)
+#'
+#' stripes <- data_frame(
+#'   x = rep(0, 7),
+#'   y = cumsum(c(0, rep(30, 6))),
+#'   w = rep(300, 7),
+#'   h = rep(15, 7)
+#' )
+#'
+#' stripes %>%
+#'   p5() %>%
+#'   createCanvas(300, 200) %>%
+#'   fill("#FF0000") %>%
+#'   noStroke() %>%
+#'   rect()
+#'
+#' }
 #' @export
 p5 <- function(data = NULL, width = NULL, height = NULL, padding = 0) {
   if(!is.null(data) && !is.data.frame(data)){
@@ -127,7 +160,7 @@ get_section <- function(sketch, verb){
 
   if(verb %in% c("createCanvas", "background", "noLoop")){
     "setup"
-  } if(verb %in% c("js")){
+  } else if(verb %in% c("js")){
     "post"
   } else {
     "draw"

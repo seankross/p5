@@ -53,22 +53,50 @@ stroke <- function(sketch, colorstring){
 #'
 #' p5() %>%
 #'   stroke("#FF0000") %>%
+#'   fill("#DCDCDC") %>%
 #'   rect(10, 10, 20, 30) %>%
-#'   fill("#0000FF") %>%
-#'   noStroke("") %>%
-#'   rect(20, 30, 30, 20)
+#'   noStroke() %>%
+#'   rect(40, 10, 20, 30)
 #'
 #' }
 noStroke <- function(sketch){
   empty_prototype(sketch, "noStroke")
 }
 
+
+#' Set shape color
+#'
+#' @param sketch A p5 sketch.
+#' @param colorstring A hex color string.
 #' @export
+#' @examples
+#' \dontrun{
+#'
+#' p5() %>%
+#'   fill("#FAE") %>%
+#'   rect(10, 10, 10, 10) %>%
+#'   fill("#808080") %>%
+#'   rect(30, 30, 10, 10)
+#'
+#' }
 fill <- function(sketch, colorstring){
   color_prototype(sketch, "fill", colorstring)
 }
 
+#' Disable shape color
+#'
+#' @param sketch A p5 sketch.
 #' @export
+#' @examples
+#' \dontrun{
+#'
+#' p5() %>%
+#'   fill("#FAE") %>%
+#'   rect(10, 10, 10, 10) %>%
+#'   noFill() %>%
+#'   rect(30, 30, 10, 10)
+#'
+#' }
 noFill <- function(sketch){
   empty_prototype(sketch, "noFill")
 }

@@ -42,7 +42,7 @@ noLoop <- function(sketch){
 #' @importFrom stringr str_replace_all
 #' @export
 js <- function(sketch, ..., objn = "p."){
-  p5_api <- "(alpha|blue|brightness|color|green|hue|lerpColor|lightness|red|saturation|background|clear|colorMode|fill|noFill|noStroke|stroke|arc|ellipse|line|point|quad|rect|triangle|ellipseMode|noSmooth|rectMode|smooth|strokeCap|strokeJoin|strokeWeight|bezier|bezierPoint|bezierTangent|curve|curveTightness|curvePoint|curveTangent|beginContour|beginShape|bezierVertex|curveVertex|endContour|endShape|quadraticVertex|vertex|loadModel|model|plane|box|sphere|cylinder|cone|ellipsoid|torus|HALF_PI|PI|QUARTER_PI|TAU|TWO_PI|preload|setup|draw|remove|noLoop|loop|push|pop|redraw|print|frameCount|focused|cursor|frameRate|noCursor|displayWidth|displayHeight|windowWidth|windowHeight|windowResized|width|height|fullscreen|pixelDensity|displayDensity|getURL|getURLPath|getURLParams|createCanvas|resizeCanvas|noCanvas|createGraphics|blendMode|applyMatrix|resetMatrix|rotate|rotateX|rotateY|rotateZ|scale|shearX|shearY|translate|append|arrayCopy|concat|reverse|shorten|shuffle|sort|splice|subset|float|int|str|boolean|byte|char|unchar|hex|unhex|join|match|matchAll|nf|nfc|nfp|nfs|split|splitTokens|trim|deviceOrientation|accelerationX|accelerationY|accelerationZ|pAccelerationX|pAccelerationY|pAccelerationZ|rotationX|rotationY|rotationZ|pRotationX|pRotationY|pRotationZ|setMoveThreshold|setShakeThreshold|deviceMoved|deviceTurned|deviceShaken|keyIsPressed|key|keyCode|keyPressed|keyReleased|keyTyped|keyIsDown|mouseX|mouseY|pmouseX|pmouseY|winMouseX|winMouseY|pwinMouseX|pwinMouseY|mouseButton|mouseIsPressed|mouseMoved|mouseDragged|mousePressed|mouseReleased|mouseClicked|mouseWheel|touches|touchStarted|touchMoved|touchEnded|createImage|saveCanvas|saveFrames|loadImage|image|tint|noTint|imageMode|pixels|blend|copy|filter|get|loadPixels|set|updatePixels|loadFont|loadJSON|loadStrings|loadTable|loadXML|httpGet|httpPost|httpDo|save|saveJSON|saveStrings|saveTable|day|hour|minute|millis|month|second|year|abs|ceil|constrain|dist|exp|floor|lerp|log|mag|map|max|min|norm|pow|round|sq|sqrt|noise|noiseDetail|noiseSeed|acos|asin|atan|atan2|cos|sin|tan|degrees|radians|angleMode|randomSeed|random|randomGaussian|textAlign|textLeading|textSize|textStyle|textWidth|text|textFont|camera|perspective|ortho|ambientLight|directionalLight|pointLight|OPEN|CHORD|PIE)"
+  p5_api <- "(alpha|blue|brightness|color|green|hue|lerpColor|lightness|red|saturation|background|clear|colorMode|fill|noFill|noStroke|stroke|arc|ellipse|line|point|quad|rect|triangle|ellipseMode|noSmooth|rectMode|smooth|strokeCap|strokeJoin|strokeWeight|bezier|bezierPoint|bezierTangent|curve|curveTightness|curvePoint|curveTangent|beginContour|beginShape|bezierVertex|curveVertex|endContour|endShape|quadraticVertex|vertex|loadModel|model|plane|box|sphere|cylinder|cone|ellipsoid|torus|HALF_PI|PI|QUARTER_PI|TAU|TWO_PI|preload|setup|draw|remove|noLoop|loop|push|pop|redraw|print|frameCount|focused|cursor|frameRate|noCursor|displayWidth|displayHeight|windowWidth|windowHeight|windowResized|width|height|fullscreen|pixelDensity|displayDensity|getURL|getURLPath|getURLParams|createCanvas|resizeCanvas|noCanvas|createGraphics|blendMode|applyMatrix|resetMatrix|rotate|rotateX|rotateY|rotateZ|scale|shearX|shearY|translate|append|arrayCopy|concat|reverse|shorten|shuffle|sort|splice|subset|float|int|str|boolean|byte|char|unchar|hex|unhex|join|match|matchAll|nf|nfc|nfp|nfs|split|splitTokens|trim|deviceOrientation|accelerationX|accelerationY|accelerationZ|pAccelerationX|pAccelerationY|pAccelerationZ|rotationX|rotationY|rotationZ|pRotationX|pRotationY|pRotationZ|setMoveThreshold|setShakeThreshold|deviceMoved|deviceTurned|deviceShaken|keyIsPressed|key|keyCode|keyPressed|keyReleased|keyTyped|keyIsDown|mouseX|mouseY|pmouseX|pmouseY|winMouseX|winMouseY|pwinMouseX|pwinMouseY|mouseButton|mouseIsPressed|mouseMoved|mouseDragged|mousePressed|mouseReleased|mouseClicked|mouseWheel|touches|touchStarted|touchMoved|touchEnded|createImage|saveCanvas|saveFrames|loadImage|image|tint|noTint|imageMode|pixels|blend|copy|filter|get|loadPixels|set|updatePixels|loadFont|loadJSON|loadStrings|loadTable|loadXML|httpGet|httpPost|httpDo|save|saveJSON|saveStrings|saveTable|day|hour|minute|millis|month|second|year|abs|ceil|constrain|dist|exp|floor|lerp|log|mag|map|max|min|norm|pow|round|sq|sqrt|noise|noiseDetail|noiseSeed|acos|asin|atan|atan2|cos|sin|tan|degrees|radians|angleMode|randomSeed|random|randomGaussian|textAlign|textLeading|textSize|textStyle|textWidth|text|textFont|camera|perspective|ortho|ambientLight|directionalLight|pointLight|OPEN|CHORD|PIE|WEBGL)"
 
   script <- JS_(...) %>%
     str_replace_all(p5_api, paste0(objn, "\\1"))
@@ -162,4 +162,63 @@ make_part <- function(data, part){
   sketch_part <- p5(data)
   sketch_part$x$section <- part
   sketch_part
+}
+
+#' Combine multiple sketches together
+#'
+#' @importFrom htmlwidgets createWidget
+#' @importFrom stringr str_split
+#' @export
+bind_sketches <- function(..., width = NULL, height = NULL, padding = 0){
+  id <- paste(c("p5-", sample(0:9, 10, replace = TRUE)), collapse = "")
+  fn <- paste(sample(letters, 10, replace = TRUE), collapse = "")
+
+  # forward options using x
+  # x = list(
+  #   section = "sketch",
+  #   pre = JS_(";"),
+  #   setup = JS_("p.setup = function() {", "};"),
+  #   between = JS_(";"),
+  #   draw = JS_("p.draw = function() {", "};"),
+  #   post = JS_(";"),
+  #   data = data,
+  #   fn = fn
+  # )
+
+  sect2vec <- function(sect){
+    unlist(str_split(sect, "\n"))
+  }
+
+  combine_sections1 <- function(sect1, sect2){
+    JS_(sect2vec(sect1), sect2vec(sect2))
+  }
+
+  combine_sections2 <- function(sect1, sect2){
+    vec1 <- sect2vec(sect1)
+    vec2 <- sect2vec(sect2)
+
+    vec1 <- vec1[-length(vec1)]
+    vec2 <- vec2[-1]
+
+    JS_(vec1, vec2)
+  }
+
+  result <- reduce(list(...), function(sketch1, sketch2){
+    sketch1$x$pre <- combine_sections1(sketch1$x$pre, sketch2$x$pre)
+    sketch1$x$setup <- combine_sections2(sketch1$x$setup, sketch2$x$setup)
+    sketch1$x$between <- combine_sections1(sketch1$x$between, sketch2$x$between)
+    sketch1$x$draw <- combine_sections2(sketch1$x$draw, sketch2$x$draw)
+    sketch1$x$post <- combine_sections1(sketch1$x$post, sketch2$x$post)
+    sketch1
+  })
+
+  # create widget
+  htmlwidgets::createWidget(
+    name = "p5",
+    result$x,
+    width = width,
+    height = height,
+    sizingPolicy = sizingPolicy(padding = padding),
+    elementId = id
+  )
 }

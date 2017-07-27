@@ -117,7 +117,7 @@ is_constant <- function(y, sketch = NULL){
            "keyIsPressed", "key", "keyCode", "mouseX", "mouseY", "pmouseX",
            "pmouseY", "winMouseX", "winMouseY", "pwinMouseX", "pwinMouseY",
            "mouseButton", "mouseIsPressed", "touches", "pixels", "OPEN",
-           "CHORD", "PIE")
+           "CHORD", "PIE", "WEBGL")
   if(!is.null(sketch$x$data)){
     !(y %in% colnames(sketch$x$data)) && (y %in% constants)
   } else {

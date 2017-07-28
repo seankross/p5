@@ -1,15 +1,21 @@
 Package: p5
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.0.0.9005
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Title: Create Drawings, Animations, and Interactions with the 'p5' Javascript Library
+Version: 0.0.0.9006
+Authors@R: c(person("Sean", "Kross", email = "sean@seankross.com", role = c("aut", "cre")),
+  person("Lauren", "McCarthy", role = c("ctb", "cph"), comment = "p5.js library"))
+Description: Create your own drawings, animations, and interactions with the 
+  'p5' Javascript Library. You can include your drawings in R Markdown documents,
+  Shiny applications, or you can export them from R. See <https://p5js.org/> for
+  more information.
+License: MIT + file LICENSE
 Encoding: UTF-8
+URL: http://seankross.com/p5
+BugReports: https://github.com/seankross/p5/issues
+Depends: R (>= 3.1.0)
 Imports:
   htmlwidgets,
+  htmltools,
   magrittr,
   rlang,
   purrr,
@@ -20,5 +26,4 @@ Suggests:
   dplyr
 LazyData: true
 RoxygenNote: 6.0.1
-Suggests: testthat
 Roxygen: list(markdown = TRUE)

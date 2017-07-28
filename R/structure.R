@@ -166,31 +166,55 @@ make_part <- function(data, part){
 
 #' Combine multiple sketches together
 #'
+#' @param ... A series of p5 sketches.
+#' @param width Width of the sketch.
+#' @param height Height of the sketch.
+#' @param padding Padding of the sketch.
 #' @importFrom htmlwidgets createWidget
 #' @importFrom stringr str_split
+#' @importFrom purrr reduce
 #' @export
+#' @examples
+#' \dontrun{
+#'
+#' library(dplyr)
+#'
+#' stripes <- data_frame(
+#'   x = rep(0, 7),
+#'   y = cumsum(c(0, rep(30, 6))),
+#'   w = rep(190*2, 7),
+#'   h = rep(15, 7)
+#' )
+#'
+#' stripes_ <- stripes %>%
+#'   p5() %>%
+#'   createCanvas(190*2, 200) %>%
+#'   fill("#B22234") %>%
+#'   noStroke() %>%
+#'   rect()
+#'
+#' stars_ <- p5() %>%
+#'   fill("#3C3B6E") %>%
+#'   noStroke() %>%
+#'   rect(0, 0, 152, 105)
+#'
+#' bind_sketches(stripes_, stars_)
+#'
+#' }
 bind_sketches <- function(..., width = NULL, height = NULL, padding = 0){
   id <- paste(c("p5-", sample(0:9, 10, replace = TRUE)), collapse = "")
   fn <- paste(sample(letters, 10, replace = TRUE), collapse = "")
-
-  # forward options using x
-  # x = list(
-  #   section = "sketch",
-  #   pre = JS_(";"),
-  #   setup = JS_("p.setup = function() {", "};"),
-  #   between = JS_(";"),
-  #   draw = JS_("p.draw = function() {", "};"),
-  #   post = JS_(";"),
-  #   data = data,
-  #   fn = fn
-  # )
 
   sect2vec <- function(sect){
     unlist(str_split(sect, "\n"))
   }
 
   combine_sections1 <- function(sect1, sect2){
-    JS_(sect2vec(sect1), sect2vec(sect2))
+    if(sect1 == sect2 && sect1 == ";"){
+      ";"
+    } else {
+      JS_(sect2vec(sect1), sect2vec(sect2))
+    }
   }
 
   combine_sections2 <- function(sect1, sect2){

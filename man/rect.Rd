@@ -44,3 +44,7 @@ data_frame(A = c(10, 40),
 
 }
 }
+\seealso{
+Other Shape 2D Primitives: \code{\link{arc}},
+  \code{\link{ellipse}}, \code{\link{line}}
+}

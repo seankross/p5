@@ -91,6 +91,7 @@ JS_ <- function(...){
 #' @usage lhs \%>\% rhs
 NULL
 
+# Parses formulas so that they can be converted to p5 constants
 parse_rhs <- function(rhs, acc = NULL){
   if(is.name(rhs)){
     return(c(paste0("p.", as.character(rhs)), acc))
@@ -107,6 +108,7 @@ parse_formula <- function(form){
   parse_rhs(rhs)
 }
 
+# Interprets whether a formula represents a constant or a data frame column name
 is_constant <- function(y, sketch = NULL){
   constants <- c("HALF_PI", "PI", "QUARTER_PI", "TAU", "TWO_PI", "frameCount",
            "focused", "displayWidth", "displayHeight", "windowWidth",
@@ -125,6 +127,7 @@ is_constant <- function(y, sketch = NULL){
   }
 }
 
+# Translates a formula into the appropriate javascript with p5 constants
 #' @importFrom stringr str_extract_all
 #' @importFrom purrr map_chr
 unform <- function(form, sketch = NULL){
@@ -153,6 +156,8 @@ validCssUnit <- function(x){
   !isTRUE(result)
 }
 
+# Some p5 functions only make sense if they appear in certain sections of the
+# p5 script. This function assigns them a section based on what makes sense.
 get_section <- function(sketch, verb){
   if(sketch$x$section != "sketch"){
     return(sketch$x$section)
@@ -167,6 +172,20 @@ get_section <- function(sketch, verb){
   }
 }
 
+# Given a named list of arguments:
+#   If no value is provided to the function and there's a match with a column
+#   name in the provided data frame, then use the column name.
+#
+#   Else if the argument provided is a formula then turn it into the appropriate
+#   javascript p5 string.
+#
+#   Else if the value provided is `NULL` then convert it to javascript's `null`.
+#
+#   Else just report the value provided as an argument to the function.
+#
+# Given the cleansed arguments, if any are column names the return the data in
+# the column as a list, else just return the value.
+#
 #' @importFrom purrr map pmap map2
 #' @importFrom rlang is_formula
 prepare_args <- function(sketch, ...){

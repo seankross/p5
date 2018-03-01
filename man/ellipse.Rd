@@ -31,5 +31,7 @@ p5() \%>\%
 }
 \seealso{
 Other Shape 2D Primitives: \code{\link{arc}},
-  \code{\link{line}}, \code{\link{rect}}
+  \code{\link{line}}, \code{\link{point}},
+  \code{\link{quad}}, \code{\link{rect}},
+  \code{\link{triangle}}
 }

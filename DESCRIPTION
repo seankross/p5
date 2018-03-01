@@ -1,7 +1,7 @@
 Package: p5
 Type: Package
 Title: Create Drawings, Animations, and Interactions with the 'p5' Javascript Library
-Version: 0.0.0.9006
+Version: 0.0.0.9011
 Authors@R: c(person("Sean", "Kross", email = "sean@seankross.com", role = c("aut", "cre")),
   person("Lauren", "McCarthy", role = c("ctb", "cph"), comment = "p5.js library"))
 Description: Create your own drawings, animations, and interactions with the 
